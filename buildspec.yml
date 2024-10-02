@@ -1,4 +1,42 @@
 version: 0.2
+env:
+  variables:
+    REPOSITORY_URI: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME
+phases:
+  install:
+    runtime-versions: 
+      docker: 20
+    commands:
+      - echo Installing kubectl...
+      - curl -LO "https://dl.k8s.io/release/v1.30/bin/linux/amd64/kubectl"
+      - curl -LO "https://dl.k8s.io/release/v1.30/bin/linux/amd64/kubectl.sha256"
+      - sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl 
+      - kubectl version --client
+      - echo Installing authenticator...
+      - curl -o aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.15.10/2020-02-22/bin/linux/amd64/aws-iam-authenticator
+      - chmod +x ./aws-iam-authenticator
+      - sudo mv ./aws-iam-authenticator /usr/local/bin/aws-iam-authenticator
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - echo Setting up Kubernetes context...
+      - aws eks update-kubeconfig --name my-eks-cluster --region $AWS_DEFAULT_REGION
+  build:
+    commands:
+      - echo Building the Docker image...
+      - pwd 
+      - docker build -t $IMAGE_REPO_NAME .
+      - docker tag $IMAGE_REPO_NAME $REPOSITORY_URI
+  post_build:
+    commands:
+      - echo Pushing the Docker image...
+      - docker push $REPOSITORY_URI
+      - cat deployment.yaml
+      - kubectl config view 
+      - echo Applying deployment...
+      - kubectl apply -f deployment.yaml
 artifacts:
   files:
-   - '**/*'
+    - '**/*'
+  discard-paths: yes
