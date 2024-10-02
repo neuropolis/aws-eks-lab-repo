@@ -1,31 +1,19 @@
-# Use an official Ubuntu image as the base
-FROM ubuntu:20.04
+FROM node:18-alpine
 
-# Set the non-interactive mode for apt to avoid prompts
-ARG DEBIAN_FRONTEND=noninteractive
-
-# Install updates and necessary packages
-RUN apt-get update && \
-    apt-get install -y git curl && \
-    curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
-    apt-get install -y nodejs && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# Set the working directory
+# Set the working directory in the container
 WORKDIR /app
 
-# Clone the repository
-RUN git clone https://github.com/Educative-Content/aws-compute-services-zero-to-hero-cl-frontend-app.git /app
+# Copy the current directory contents into the container at /app
+COPY . .
 
-# Change directory into the cloned repository
-WORKDIR /app/aws-compute-services-zero-to-hero-cl-frontend-app
+# Install any needed packages
+RUN cd web-app && npm install
 
-# Install Node.js dependencies
-RUN npm install
+# Make port 8000 available to the world outside this container
+EXPOSE 8000
 
-# Expose the port that the app runs on
-EXPOSE 3000
+# Define environment variable
+ENV PORT=8000
 
-# Start the application
-CMD ["npm", "start"]
+# Run app.js using node when the container launches
+CMD ["node", "app.js"]
