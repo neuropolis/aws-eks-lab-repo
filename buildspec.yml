@@ -37,9 +37,9 @@ phases:
       - echo Pushing the Docker image...
       - docker push $REPOSITORY_URI
       - cat deployment.yaml
-      - sudo kubectl config view 
+      - kubectl config view 
       - echo Applying deployment...
-      - sudo kubectl apply -f deployment.yaml
+      - kubectl apply -f deployment.yaml
 artifacts:
   files:
     - '**/*'
