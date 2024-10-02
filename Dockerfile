@@ -1,19 +1,31 @@
-FROM node:18-alpine
+# Use an official Ubuntu image as the base
+FROM public.ecr.aws/lts/ubuntu:latest
 
-# Set the working directory in the container
+# Set the non-interactive mode for apt to avoid prompts
+ARG DEBIAN_FRONTEND=noninteractive
+
+# Install updates and necessary packages
+RUN apt-get update && \
+    apt-get install -y git curl && \
+    curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
+    apt-get install -y nodejs && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set the working directory
 WORKDIR /app
 
-# Copy the current directory contents into the container at /app
-COPY . .
+# Clone the repository
+RUN git clone https://github.com/Educative-Content/aws-compute-services-zero-to-hero-cl-frontend-app.git /app
 
-# Install any needed packages
-RUN cd web-app && npm install
+# Change directory into the cloned repository
+WORKDIR /app/aws-compute-services-zero-to-hero-cl-frontend-app
 
-# Make port 8000 available to the world outside this container
-EXPOSE 8000
+# Install Node.js dependencies
+RUN npm install
 
-# Define environment variable
-ENV PORT=8000
+# Expose the port that the app runs on
+EXPOSE 3000
 
-# Run app.js using node when the container launches
-CMD ["node", "app.js"]
+# Start the application
+CMD ["npm", "start"]
