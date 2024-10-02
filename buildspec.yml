@@ -12,7 +12,7 @@ phases:
       - curl -LO "https://dl.k8s.io/release/v1.30/bin/linux/amd64/kubectl.sha256"
       - sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl 
       - echo Successfully installed kubectl
-      - /usr/local/bin/kubectl version --client
+      - ./kubectl version --client
       - echo Installing authenticator...
       - curl -o aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.15.10/2020-02-22/bin/linux/amd64/aws-iam-authenticator
       - chmod +x ./aws-iam-authenticator
@@ -34,9 +34,9 @@ phases:
       - echo Pushing the Docker image...
       - docker push $REPOSITORY_URI
       - cat deployment.yaml
-      - /usr/local/bin/kubectl config view 
+      - ./kubectl config view 
       - echo Applying deployment...
-      - /usr/local/bin/kubectl apply -f deployment.yaml
+      - ./kubectl apply -f deployment.yaml
 artifacts:
   files:
     - '**/*'
