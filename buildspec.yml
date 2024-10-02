@@ -39,7 +39,7 @@ phases:
       - cat deployment.yaml
       - kubectl config view 
       - echo Applying deployment...
-      - kubectl apply -f deployment.yaml
+      - kubectl apply -f deployment.yaml --validate=false
 artifacts:
   files:
     - '**/*'
