@@ -1,11 +1,16 @@
-# Use an official Amazon Linux 2 image as the base
-FROM amazonlinux:2
+# Use an official Ubuntu image as the base
+FROM ubuntu:20.04
+
+# Set the non-interactive mode for apt to avoid prompts
+ARG DEBIAN_FRONTEND=noninteractive
 
 # Install updates and necessary packages
-RUN yum -y update && \
-    yum -y install git && \
-    yum install -y https://rpm.nodesource.com/pub_16.x/nodistro/repo/nodesource-release-nodistro-1.noarch.rpm && \
-    yum install -y nodejs --setopt=nodesource-nodejs.module_hotfixes=1
+RUN apt-get update && \
+    apt-get install -y git curl && \
+    curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
+    apt-get install -y nodejs && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Set the working directory
 WORKDIR /app
