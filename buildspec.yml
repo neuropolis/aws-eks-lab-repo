@@ -23,6 +23,7 @@ phases:
     commands:
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - export REPOSITORY_URI=$(aws ecr describe-repositories --repository-names ecr_repo --query 'repositories[0].repositoryUri' --output text)
       - echo Setting up Kubernetes context...
       - aws eks update-kubeconfig --name my-eks-cluster --region $AWS_DEFAULT_REGION
   build:
