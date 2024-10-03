@@ -37,6 +37,7 @@ phases:
       - echo Pushing the Docker image...
       - docker push $REPOSITORY_URI
       - cat deployment.yaml
+      - kubectl create configmap my-config --from-file=./confimap.yaml
       - kubectl config view 
       - echo Applying deployment...
       - aws eks update-kubeconfig --name my-eks-cluster --region $AWS_DEFAULT_REGION
