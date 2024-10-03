@@ -46,7 +46,6 @@ phases:
       - kubectl config get-contexts
       - echo Caller ID
       - aws sts get-caller-identity
-      - aws eks update-kubeconfig --name my-eks-cluster --region us-east-1
       - echo kubectl auth info is as follows
       - kubectl get configmap aws-auth -n kube-system -o yaml
       - kubectl apply -f deployment.yaml --validate=false
