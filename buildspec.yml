@@ -41,6 +41,21 @@ phases:
       - echo Applying deployment...
       - aws eks update-kubeconfig --name my-eks-cluster --region $AWS_DEFAULT_REGION
       - cat /root/.kube/config
+      - echo Mapping CodeBuild IAM role to aws-auth ConfigMap...
+      - |
+        cat <<EOF > aws-auth-patch.yaml
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: aws-auth
+          namespace: kube-system
+        data:
+          mapRoles: |
+            - rolearn: arn:aws:iam::$AWS_ACCOUNT_ID:role/aws-codepipeline-lab-codebuild-role
+              username: build-role
+              groups:
+              - system:masters
+        EOF
       - kubectl config current-context
       - echo all the contexts are as follows
       - kubectl config get-contexts
