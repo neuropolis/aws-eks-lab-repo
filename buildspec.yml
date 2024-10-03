@@ -56,7 +56,6 @@ phases:
               groups:
               - system:masters
         EOF
-      - apt install sudo
       - sudo kubectl config current-context
       - sudo kubectl apply -f aws-auth-patch.yaml
       - echo all the contexts are as follows
