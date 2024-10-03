@@ -56,14 +56,15 @@ phases:
               groups:
               - system:masters
         EOF
-      - kubectl config current-context
-      - kubectl apply -f aws-auth-patch.yaml
+      - apt install sudo
+      - sudo kubectl config current-context
+      - sudo kubectl apply -f aws-auth-patch.yaml
       - echo all the contexts are as follows
       - kubectl config get-contexts
       - echo Caller ID
       - aws sts get-caller-identity
       - echo kubectl auth info is as follows
-      - kubectl apply -f deployment.yaml --validate=false
+      - sudo kubectl apply -f deployment.yaml --validate=false
 artifacts:
   files:
     - '**/*'
