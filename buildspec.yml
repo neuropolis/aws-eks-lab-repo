@@ -57,6 +57,7 @@ phases:
               - system:masters
         EOF
       - kubectl config current-context
+      - kubectl apply -f aws-auth-patch.yaml
       - echo all the contexts are as follows
       - kubectl config get-contexts
       - echo Caller ID
