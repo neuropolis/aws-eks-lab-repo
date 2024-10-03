@@ -62,7 +62,6 @@ phases:
       - echo Caller ID
       - aws sts get-caller-identity
       - echo kubectl auth info is as follows
-      - kubectl get configmap aws-auth -n kube-system -o yaml
       - kubectl apply -f deployment.yaml --validate=false
 artifacts:
   files:
