@@ -39,6 +39,7 @@ phases:
       - cat deployment.yaml
       - kubectl config view 
       - echo Applying deployment...
+      - aws eks update-kubeconfig --name my-eks-cluster --region $AWS_DEFAULT_REGION
       - kubectl apply -f deployment.yaml --validate=false
 artifacts:
   files:
