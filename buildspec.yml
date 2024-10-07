@@ -42,6 +42,7 @@ phases:
       - aws eks update-kubeconfig --name my-eks-cluster --region $AWS_DEFAULT_REGION
       - cat /root/.kube/config
       - aws sts get-caller-identity
+      - kubectl describe -n kube-system configmap/aws-auth
       - kubectl apply -f deployment.yaml --validate=false
 artifacts:
   files:
