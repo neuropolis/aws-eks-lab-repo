@@ -43,9 +43,7 @@ phases:
       - aws eks update-kubeconfig --name my-eks-cluster --region $AWS_DEFAULT_REGION
       - cat /root/.kube/config
       - aws sts get-caller-identity
-      - aws eks update-cluster-config --name my-eks-cluster --access-config authenticationMode=API_AND_CONFIG_MAP
-      - aws eks list-updates
-      - aws eks create-access-entry --cluster-name my-eks-cluster --principal-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/eks-codebuild-role/{SESSION} --type STANDARD --username my-user
+      - aws eks create-access-entry --cluster-name my-eks-cluster --principal-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/eks-codebuild-role --type STANDARD --username my-user
       - kubectl apply -f deployment.yaml --validate=false
 artifacts:
   files:
