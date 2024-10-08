@@ -54,6 +54,7 @@ phases:
       - kubectl apply -f deployment.yaml --validate=false
       - kubectl apply -f service.yaml
       - kubectl get svc
+      - kubectl describe deployment my-app
 
 artifacts:
   files:
