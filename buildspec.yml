@@ -29,20 +29,12 @@ phases:
       - aws eks update-kubeconfig --name my-eks-cluster --region $AWS_DEFAULT_REGION
       - CALLER_ARN=$(aws sts get-caller-identity --query 'Arn' --output text)
       - echo "Checking if EKS access entry exists for $CALLER_ARN..."
-      - if ! aws eks describe-access-entries --cluster-name my-eks-cluster --query "accessEntries[?principalArn=='arn:aws:iam::$AWS_ACCOUNT_ID:role/eks-codebuild-role']" --output text | grep -q arn:aws:iam::$AWS_ACCOUNT_ID:role/eks-codebuild-role; then
+      - if ! aws eks describe-access-entry --cluster-name my-eks-cluster --principal-arn --query arn:aws:iam::$AWS_ACCOUNT_ID:role/eks-codebuild-role --output text | grep -q arn:aws:iam::$AWS_ACCOUNT_ID:role/eks-codebuild-role; then
           echo "Creating EKS access entry...";
           aws eks create-access-entry --cluster-name my-eks-cluster --principal-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/eks-codebuild-role --type STANDARD --username arn:aws:sts::$AWS_ACCOUNT_ID:assumed-role/eks-codebuild-role/{{SessionName}};
-        else
-          echo "EKS access entry for $CALLER_ARN already exists.";
-        fi
-  
-      # Conditional check for the EKS access policy association
-      - echo "Checking if EKS access policy is associated for $CALLER_ARN..."
-      - if ! aws eks describe-access-policies --cluster-name my-eks-cluster --query "accessPolicies[?principalArn=='arn:aws:sts::$AWS_ACCOUNT_ID:assumed-role/eks-codebuild-role/{{SessionName}}']" --output text | grep -q $CALLER_ARN; then
-          echo "Associating access policy for EKS...";
           aws eks associate-access-policy --cluster-name my-eks-cluster --principal-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/eks-codebuild-role --access-scope type=cluster --policy-arn arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy;
         else
-          echo "Access policy for $CALLER_ARN is already associated.";
+          echo "EKS access entry for $CALLER_ARN already exists.";
         fi
   build:
     commands:
