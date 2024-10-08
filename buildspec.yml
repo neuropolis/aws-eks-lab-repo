@@ -51,9 +51,10 @@ phases:
       - echo Applying deployment...
       - cat /root/.kube/config
       - aws sts get-caller-identity
-      - kubectl apply -f ingress.yaml
-      - kubectl apply -f deployment.yaml --validate=false
       - kubectl apply -f service.yaml
+      - kubectl apply -f deployment.yaml --validate=false
+      - kubectl apply -f ingress.yaml
+      - kubectl get ingress/my-app-ingress -n my-app
       - kubectl get svc
       - kubectl describe deployment my-app
       - kubectl get pods
