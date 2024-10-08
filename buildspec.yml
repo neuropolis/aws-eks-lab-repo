@@ -57,6 +57,8 @@ phases:
       - kubectl describe deployment my-app
       - kubectl get pods
       - kubectl describe nodes
+      - kubectl get ingress
+
 
 artifacts:
   files:
