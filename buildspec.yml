@@ -56,6 +56,7 @@ phases:
       - kubectl get svc
       - kubectl describe deployment my-app
       - kubectl get pods
+      - kubectl describe nodes
 
 artifacts:
   files:
