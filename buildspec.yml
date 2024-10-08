@@ -58,8 +58,7 @@ phases:
       - kubectl get pods
       - kubectl describe nodes
       - kubectl get ingress
-
-
+      - kubectl apply -f ingress.yaml
 artifacts:
   files:
     - '**/*'
