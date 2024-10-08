@@ -43,9 +43,9 @@ phases:
       - cat /root/.kube/config
       - aws sts get-caller-identity
       - CALLER_ARN=$(aws sts get-caller-identity --query 'Arn' --output text)
-      - aws eks create-access-entry --cluster-name my-eks-cluster --principal-arn $CALLER_ARN --type STANDARD --username my-user
-      - aws eks associate-access-policy --cluster-name my-eks-cluster --principal-arn $CALLER_ARN --access-scope type=cluster --policy-arn arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy
-      - aws eks associate-access-policy --cluster-name my-eks-cluster --principal-arn $CALLER_ARN --access-scope type=cluster --policy-arn arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy
+      - aws eks create-access-entry --cluster-name my-eks-cluster --principal-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/eks-codebuild-role --type STANDARD --username arn:aws:sts::539627160332:assumed-role/eks-codebuild-role/{{SessionName}}
+      - aws eks associate-access-policy --cluster-name my-eks-cluster --principal-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/eks-codebuild-role --access-scope type=cluster --policy-arn arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy
+      - aws eks associate-access-policy --cluster-name my-eks-cluster --principal-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/eks-codebuild-role --access-scope type=cluster --policy-arn arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy
       - kubectl apply -f deployment.yaml --validate=false
 artifacts:
   files:
