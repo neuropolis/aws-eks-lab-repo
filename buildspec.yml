@@ -46,6 +46,7 @@ phases:
     commands:
       - echo Pushing the Docker image...
       - docker push $REPOSITORY_URI
+      - sed -i "s|123456789.dkr.ecr.eu-west-1.amazonaws.com/aritra-eks-demo:[^ ]*|$REPOSITORY_URI:$IMAGE_REPO_NAME|" deployment.yaml
       - cat deployment.yaml
       - kubectl config view 
       - echo Applying deployment...
