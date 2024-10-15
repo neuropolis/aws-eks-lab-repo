@@ -8,8 +8,8 @@ phases:
       docker: 20
     commands:
       - echo Installing kubectl...
-      - curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-      - sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+      - curl -LO "https://dl.k8s.io/release/$(curl -sL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+      - install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
       - sudo chmod +x ./kubectl
       - mv ./kubectl /usr/local/bin/kubectl
       - whereis kubectl
