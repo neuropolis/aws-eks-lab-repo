@@ -52,6 +52,7 @@ phases:
       - echo Applying deployment...
       - cat /root/.kube/config
       - aws sts get-caller-identity
+      - kubectl apply -f replicaset.yaml
       - kubectl apply -f service.yaml
       - kubectl apply -f deployment.yaml --validate=false
       - kubectl apply -f ingress.yaml
