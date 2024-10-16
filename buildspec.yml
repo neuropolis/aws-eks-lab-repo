@@ -77,7 +77,8 @@ phases:
             sleep 10;
           fi
         done
-      
+      - kubectl describe svc my-app-service
+      - kubectl get svc my-app-service
 artifacts:
   files:
     - '**/*'
