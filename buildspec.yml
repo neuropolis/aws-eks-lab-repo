@@ -64,16 +64,18 @@ phases:
       - kubectl describe nodes
       - kubectl get ingress
       - kubectl describe deployment my-app
+      - echo "scaling the deployment"
+      - kubectl scale deployment my-app --replicas=5
       - echo "Waiting for External IP..."
       - export EXTERNAL_IP=$(kubectl get svc my-app-service -o=jsonpath='{.status.loadBalancer.ingress[0].ip}');
       - |
         for i in {1..30}; do
-          EXTERNAL_IP=$(kubectl get svc my-app-service -o=jsonpath='{.status.loadBalancer.ingress[0].ip}');
-          if [ -n "$EXTERNAL_IP" ]; then
-            echo "External IP found: $EXTERNAL_IP";
+          EXTERNAL_IP=$(kubectl get svc my-app-service -o=jsonpath='{.status.loadBalancer.ingress[0].hostname}');
+          if [[ "$EXTERNAL_IP" != "<pending>" && -n "$EXTERNAL_IP" ]]; then
+            echo "External IP/Hostname found: $EXTERNAL_IP";
             break;
           else
-            echo "External IP not found yet, waiting...";
+            echo "External IP/Hostname not found yet, waiting...";
             sleep 10;
           fi
         done
