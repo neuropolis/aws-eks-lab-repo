@@ -27,5 +27,7 @@ EXPOSE 8000
 # Define environment variable
 ENV PORT=8000
 
+WORKDIR /app/web-app
+
 # Run app.js using node when the container launches
 CMD ["node", "index.js"]
