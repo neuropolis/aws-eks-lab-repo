@@ -21,13 +21,6 @@ phases:
       - curl -o aws-iam-authenticator https://amazon-eks.s3.us-east-1.amazonaws.com/1.15.10/2020-02-22/bin/linux/amd64/aws-iam-authenticator
       - chmod +x ./aws-iam-authenticator
       - sudo mv ./aws-iam-authenticator /usr/local/bin/aws-iam-authenticator
-      - echo deleting security group tags
-      - export SECURITY_GROUP_ID=$(aws ec2 describe-security-groups --filters "Name=group-name,Values=my-eks-cluster-node-*" --query "SecurityGroups[*].GroupId" --output text)
-      - if [ -n "$SECURITY_GROUP_ID" ]; then
-          aws ec2 delete-tags --resources "$SECURITY_GROUP_ID" --tags Key=kubernetes.io/cluster/my-eks-cluster,Value=owned
-        else
-          echo "No security group found with the name 'my-eks-cluster-node-*'"
-        fi
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
@@ -43,6 +36,19 @@ phases:
           aws eks associate-access-policy --cluster-name my-eks-cluster --principal-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/eks-codebuild-role --access-scope type=cluster --policy-arn arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy;
         else
           echo "EKS access entry for $CALLER_ARN already exists.";
+        fi
+      - echo removing security group tags
+      - export SECURITY_GROUP_ID=$(aws ec2 describe-security-groups --filters "Name=group-name,Values=my-eks-cluster-node-*" --query "SecurityGroups[*].GroupId" --output text)
+      - if [ -n "$SECURITY_GROUP_ID" ]; then
+          TAG_EXISTS=$(aws ec2 describe-tags --filters "Name=resource-id,Values=$SECURITY_GROUP_ID" "Name=key,Values=kubernetes.io/cluster/my-eks-cluster" "Name=value,Values=owned" --query "Tags[*].Key" --output text)
+          if [ -n "$TAG_EXISTS" ]; then
+            aws ec2 delete-tags --resources "$SECURITY_GROUP_ID" --tags Key=kubernetes.io/cluster/my-eks-cluster,Value=owned
+            echo "Tag kubernetes.io/cluster/my-eks-cluster=owned deleted from security group $SECURITY_GROUP_ID"
+          else
+            echo "Tag kubernetes.io/cluster/my-eks-cluster=owned not found on security group $SECURITY_GROUP_ID"
+          fi
+        else
+          echo "No security group found with the name 'my-eks-cluster-node-*'"
         fi
   build:
     commands:
@@ -71,6 +77,17 @@ phases:
       - kubectl describe nodes
       - kubectl get ingress
       - kubectl describe deployment my-app
+      - echo "Waiting for External IP..."
+      - for i in {1..30}; do
+          EXTERNAL_IP=$(kubectl get svc my-app-service -o=jsonpath='{.status.loadBalancer.ingress[0].ip}');
+          if [ -n "$EXTERNAL_IP" ]; then
+            echo "External IP found: $EXTERNAL_IP";
+            break;
+          else
+            echo "External IP not found yet, waiting...";
+            sleep 10;
+          fi
+        done
       
 artifacts:
   files:
