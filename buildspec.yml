@@ -38,7 +38,7 @@ phases:
           echo "EKS access entry for $CALLER_ARN already exists.";
         fi
       - echo removing security group tags
-      - export SECURITY_GROUP_ID=$(aws ec2 describe-security-groups --filters "Name=group-name,Values=my-eks-cluster-node-*" --query "SecurityGroups[*].GroupId" --output text)
+      - export SECURITY_GROUP_ID=$(aws ec2 describe-security-groups --filters "Name=group-name,Values=my-eks-cluster-node*" --query "SecurityGroups[*].GroupId" --output text)
       - if [ -n "$SECURITY_GROUP_ID" ]; then
           TAG_EXISTS=$(aws ec2 describe-tags --filters "Name=resource-id,Values=$SECURITY_GROUP_ID" "Name=key,Values=kubernetes.io/cluster/my-eks-cluster" "Name=value,Values=owned" --query "Tags[*].Key" --output text)
           if [ -n "$TAG_EXISTS" ]; then
