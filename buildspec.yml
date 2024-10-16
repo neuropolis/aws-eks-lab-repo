@@ -51,7 +51,6 @@ phases:
             else
                 echo "No security group found with the name 'my-eks-cluster-node-*'"
             fi
-        done
 
   build:
     commands:
