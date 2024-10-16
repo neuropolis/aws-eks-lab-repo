@@ -11,6 +11,7 @@ phases:
       - echo try 2
       - curl -LO "https://dl.k8s.io/release/$(curl -sL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
       - install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+      - echo installation successful
       - sudo chmod +x ./kubectl
       - mv ./kubectl /usr/local/bin/kubectl
       - whereis kubectl
