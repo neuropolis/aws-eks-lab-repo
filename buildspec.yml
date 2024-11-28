@@ -23,6 +23,9 @@ phases:
       - sudo mv ./aws-iam-authenticator /usr/local/bin/aws-iam-authenticator
   pre_build:
     commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - export REPOSITORY_URI=$(aws ecr describe-repositories --repository-names ecr_repo --query 'repositories[0].repositoryUri' --output text)
       - echo Setting up Kubernetes context...
       - aws eks update-kubeconfig --name my-eks-cluster --region $AWS_DEFAULT_REGION
       - CALLER_ARN=$(aws sts get-caller-identity --query 'Arn' --output text)
@@ -51,15 +54,48 @@ phases:
 
   build:
     commands:
-      - echo Passing the build phase
+      - echo Building the Docker image...
+      - pwd 
+      - docker build -t $IMAGE_REPO_NAME .
+      - docker tag $IMAGE_REPO_NAME $REPOSITORY_URI
   post_build:
     commands:
-      - echo "Deleting Kubernetes service and ingress to cleanup Load Balancer..."
-      - kubectl delete svc my-app-service || true
-      - kubectl delete ingress my-app-ingress || true
-      - echo "Waiting for Load Balancer and associated Security Groups to be cleaned up..."
-      - sleep 60  # Wait for AWS resources to clean up (adjust timing as needed)
+      - echo Pushing the Docker image...
+      - docker push $REPOSITORY_URI
+      - sed -i "s|123456789.dkr.ecr.eu-west-1.amazonaws.com/aritra-eks-demo:[^ ]*|$REPOSITORY_URI:latest|" deployment.yaml
+      - cat deployment.yaml
+      - kubectl config view 
+      - echo Applying deployment...
+      - cat /root/.kube/config
+      - aws sts get-caller-identity
+      - kubectl apply -f replicaset.yaml
+      - kubectl apply -f service.yaml
+      - kubectl apply -f deployment.yaml --validate=false
+      - kubectl apply -f ingress.yaml
+      - kubectl get ingress/my-app-ingress -n default
       - kubectl get svc
+      - kubectl describe deployment my-app
+      - kubectl get pods
+      - kubectl describe nodes
+      - kubectl get ingress
+      - kubectl describe deployment my-app
+      - echo "scaling the deployment"
+      - kubectl scale deployment my-app --replicas=5
+      - echo "Waiting for External IP..."
+      - export EXTERNAL_IP=$(kubectl get svc my-app-service -o=jsonpath='{.status.loadBalancer.ingress[0].ip}');
+      - |
+        for i in {1..30}; do
+          EXTERNAL_IP=$(kubectl get svc my-app-service -o=jsonpath='{.status.loadBalancer.ingress[0].hostname}');
+          if [[ "$EXTERNAL_IP" != "<pending>" && -n "$EXTERNAL_IP" ]]; then
+            echo "External IP/Hostname found: $EXTERNAL_IP";
+            break;
+          else
+            echo "External IP/Hostname not found yet, waiting...";
+            sleep 10;
+          fi
+        done
+      - kubectl describe svc my-app-service
+      - kubectl get svc my-app-service
 artifacts:
   files:
     - '**/*'
